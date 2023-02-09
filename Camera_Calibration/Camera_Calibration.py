@@ -83,14 +83,14 @@ for fname in images:
         i = i+1
 
         # 在原角点的基础上寻找亚像素角点
-        cv2.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
+        cv2.cornerSubPix(image=gray, corners=corners, winSize=(11,11), zeroZone=(-1,-1), criteria=criteria)
 
         #追加进入世界三维点和平面二维点中
         objpoints.append(objp)
         imgpoints.append(corners)
 
         # 将角点在图像上显示
-        cv2.drawChessboardCorners(img, (w,h), corners, ret)
+        cv2.drawChessboardCorners(image=img, patternSize=(w,h), corners=corners, patternWasFound=ret)
         cv2.namedWindow('findCorners', cv2.WINDOW_NORMAL)
         cv2.resizeWindow('findCorners', 640, 480)
         cv2.imshow('findCorners',img)
@@ -99,16 +99,25 @@ for fname in images:
 cv2.destroyAllWindows()
 
 print('--------------- calculating -------------------')
+# objectPoints: (x, y, z) coordinates of corners on chessboard plane
+# imagePoints: corner points
+# imageSize: size of image
+# cameraMatrix, 
+# distCoeffs, 
+# rvecs=..., 
+# tvecs=..., 
+# flags: 
+# criteria=...
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
 
 print("ret:",ret)
 print("mtx:\n",mtx)      # 内参数矩阵
 print("dist畸变值:\n",dist   )   # 畸变系数   distortion cofficients = (k_1,k_2,p_1,p_2,k_3)
-print("rvecs旋转(向量)外参:\n",rvecs)   # 旋转向量  # 外参数
-print("tvecs平移(向量)外参:\n",tvecs  )  # 平移向量  # 外参数
+print("rvecs旋转外参:\n",rvecs)   # 旋转向量  # 外参数
+print("tvecs平移外参:\n",tvecs  )  # 平移向量  # 外参数
 newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (u, v), 0, (u, v))
-print('newcameramtx外参', newcameramtx)
+print('newcameramtx校正后外参', newcameramtx)
 
 
 no_camera = False
